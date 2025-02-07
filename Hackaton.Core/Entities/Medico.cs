@@ -15,8 +15,8 @@ namespace Hackaton.Core.Entities
         public required string Crm { get; set; }
 
         [BsonRepresentation(BsonType.String)]
-        [BsonElement("especialidades")]
-        public required List<EEspecialidade> Especialidades { get; set; }
+        [BsonElement("especialidade")]
+        public required EEspecialidade Especialidade { get; set; }
 
         [BsonIgnore]
         public virtual List<Agendamento>? Agendas { get; set; }
@@ -43,12 +43,14 @@ namespace Hackaton.Core.Entities
             Agendas.Remove(agenda);
         }
 
-        public void AddEspecialidade(EEspecialidade especialidade)
+        public IEnumerable<Agendamento> ListarHorariosDisponiveis()
         {
-            if (Especialidades == null)
-                Especialidades = new List<EEspecialidade>();
+            return Agendas;
+        }
 
-            Especialidades.Add(especialidade);
+        public override bool VerificarEmail(string email)
+        {
+            throw new NotImplementedException();
         }
     }
 }

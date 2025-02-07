@@ -9,6 +9,6 @@ namespace Hackaton.API.DTO.Inputs.Medico
         public required string Email { get; set; }
         public required string Senha { get; set; }
         public required string Crm { get; set; }
-        public required List<EEspecialidade> Especialidades { get; set; }
+        public required EEspecialidade Especialidade { get; set; }
     }
 }

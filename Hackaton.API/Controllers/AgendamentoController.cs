@@ -1,6 +1,7 @@
 ﻿using Hackaton.API.DTO.Inputs.Agendamento;
 using Hackaton.Core.Entities;
 using Hackaton.Core.Interfaces;
+using Hackaton.Infra.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +35,9 @@ namespace Hackaton.API.Controllers
             {
                 var agendamento = new Agendamento()
                 {
-                    DataInicio = input.DataInicio,
-                    DataLimite = input.DataLimite,
-                    MedicoId = input.MedicoId
+                    Data = input.Data.Date,
+                    MedicoId = input.MedicoId,
+                    Horarios = input.Horarios
                 };
 
                 await _agendamentoRepository.Cadastrar(agendamento);
@@ -63,6 +64,22 @@ namespace Hackaton.API.Controllers
                     return NoContent();
 
                 return Ok(agendamentos);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpDelete("excluir-tudo")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ExcluirTudo()
+        {
+            try
+            {
+                await _agendamentoRepository.ExcluirTudo();
+                return Ok();
             }
             catch (Exception e)
             {

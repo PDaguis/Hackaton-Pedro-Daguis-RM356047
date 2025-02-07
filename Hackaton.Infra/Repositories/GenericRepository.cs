@@ -1,6 +1,7 @@
 ﻿using Hackaton.Core.Entities;
 using Hackaton.Core.Interfaces;
 using Hackaton.Infra.Context;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,12 @@ namespace Hackaton.Infra.Repositories
             var filter = Builders<T>.Filter.Eq(x => x.Id, id);
 
             return filter;
+        }
+
+        public async Task ExcluirTudo()
+        {
+            await _context.GetCollection<T>(typeof(T).Name)
+                .DeleteManyAsync(new BsonDocument());
         }
     }
 }

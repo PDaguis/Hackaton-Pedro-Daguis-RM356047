@@ -15,7 +15,22 @@ namespace Hackaton.Core.Entities
         [BsonElement("email")]
         public required string Email { get; set; }
 
+        [BsonElement("senhaHash")]
+        public string SenhaHash { get; private set; }
+
         [BsonElement("senha")]
-        public required string Senha { get; set; }
+        public string Senha { get; private set; }
+
+        public abstract bool VerificarEmail(string email);
+
+        public void CriptografarSenha(string senha)
+        {
+            SenhaHash = BCrypt.Net.BCrypt.HashPassword(senha);
+        }
+
+        public bool ValidarSenha(string senha)
+        {
+            return BCrypt.Net.BCrypt.Verify(senha, SenhaHash);
+        }
     }
 }

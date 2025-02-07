@@ -28,8 +28,10 @@ namespace Hackaton.Infra.Repositories
 
         public async Task<IEnumerable<Medico>> ObterPorEspecialidade(EEspecialidade especialidade)
         {
+            var filter = Builders<Medico>.Filter.Eq(x => x.Especialidade, especialidade);
+
             return await _context.GetCollection<Medico>(typeof(Medico).Name)
-                .Find(m => m.Especialidades.Contains(especialidade))
+                .Find(filter)
                 .ToListAsync();
         }
 

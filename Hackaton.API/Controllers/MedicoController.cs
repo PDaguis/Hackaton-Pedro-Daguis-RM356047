@@ -1,6 +1,7 @@
 ﻿using Hackaton.API.DTO.Inputs.Medico;
 using Hackaton.Core.Entities;
 using Hackaton.Core.Interfaces;
+using Hackaton.Infra.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,9 +30,10 @@ namespace Hackaton.API.Controllers
                     Crm = input.Crm,
                     Email = input.Email,
                     Nome = input.Nome,
-                    Senha = input.Senha,
-                    Especialidades = input.Especialidades
+                    Especialidade = input.Especialidade
                 };
+
+                medico.CriptografarSenha(input.Senha);
 
                 await _medicoRepository.Cadastrar(medico);
 
@@ -56,14 +58,14 @@ namespace Hackaton.API.Controllers
                 if (medico == null)
                     return NotFound();
 
-                await _medicoRepository.Atualizar(new Medico()
-                {
-                    Crm = input.Crm,
-                    Email = input.Email,
-                    Nome = input.Nome,
-                    Senha = input.Senha,
-                    Especialidades = input.Especialidades
-                });
+                medico.Crm = input.Crm;
+                medico.Email = input.Email;
+                medico.Nome = input.Nome;
+                medico.Especialidade = input.Especialidade;
+
+                medico.CriptografarSenha(input.Senha);
+
+                await _medicoRepository.Atualizar(medico);
 
                 return Ok();
             }
@@ -89,6 +91,22 @@ namespace Hackaton.API.Controllers
 
                 await _medicoRepository.Excluir(id);
 
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpDelete("excluir-tudo")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ExcluirTudo()
+        {
+            try
+            {
+                await _medicoRepository.ExcluirTudo();
                 return Ok();
             }
             catch (Exception e)

@@ -32,9 +32,10 @@ namespace Hackaton.API.Controllers
                     Cpf = input.Cpf,
                     Nome = input.Nome,
                     Email = input.Email,
-                    Senha = input.Senha,
                     Genero = input.Genero.HasValue ? input.Genero.Value : EGenero.NaoInformado
                 };
+
+                paciente.CriptografarSenha(input.Senha);
 
                 await _pacienteRepository.Cadastrar(paciente);
 
@@ -63,8 +64,9 @@ namespace Hackaton.API.Controllers
                 paciente.Cpf = input.Cpf;
                 paciente.Nome = input.Nome;
                 paciente.Email = input.Email;
-                paciente.Senha = input.Senha;
                 paciente.Genero = input.Genero.HasValue ? input.Genero.Value : EGenero.NaoInformado;
+
+                paciente.CriptografarSenha(input.Senha);
 
                 await _pacienteRepository.Atualizar(paciente);
 
@@ -92,6 +94,20 @@ namespace Hackaton.API.Controllers
 
                 await _pacienteRepository.Excluir(id);
 
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpDelete("deletar-tudo")]
+        public async Task<IActionResult> DeletarTudo()
+        {
+            try
+            {
+                await _pacienteRepository.ExcluirTudo();
                 return Ok();
             }
             catch (Exception e)

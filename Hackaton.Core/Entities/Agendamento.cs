@@ -20,10 +20,24 @@ namespace Hackaton.Core.Entities
         [BsonElement("medicoId")]
         public required Guid MedicoId { get; set; }
 
-        [BsonElement("dataInicio")]
-        public required DateTime DataInicio { get; set; }
+        [BsonElement("horarios")]
+        public List<HorarioAgenda> Horarios { get; set; }
+        public DateTime Data { get; set; }
 
-        [BsonElement("dataLimite")]
-        public required DateTime DataLimite { get; set; }
+        public void AddHorario(HorarioAgenda horario)
+        {
+            if (horario == null)
+                return;
+
+            if (Horarios == null)
+                Horarios = new List<HorarioAgenda>();
+
+            Horarios.Add(horario);
+        }
+
+        public IEnumerable<HorarioAgenda> ListarHorariosDisponiveis()
+        {
+            return Horarios.Where(x => x.Disponivel == true).AsEnumerable();
+        }
     }
 }

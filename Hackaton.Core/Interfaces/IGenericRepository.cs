@@ -14,5 +14,6 @@ namespace Hackaton.Core.Interfaces
         Task Cadastrar(T entidade);
         Task Atualizar(T entidade);
         Task Excluir(Guid id);
+        Task ExcluirTudo();
     }
 }
