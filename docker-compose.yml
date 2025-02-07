@@ -1,0 +1,30 @@
+services:
+  hackaton.api:
+    image: ${DOCKER_REGISTRY-}hackatonapi
+    build:
+      context: .
+      dockerfile: Hackaton.API/Dockerfile
+    ports:
+        - "5003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      # - DatabaseConfiguration__ConnectionString=mongodb://mongo:27017;
+      - DatabaseConfiguration__DatabaseName=Hackaton
+    depends_on:
+      - mongo
+    networks:
+      - hackaton-network
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - hackaton-network
+networks:
+      hackaton-network:
+        driver: bridge
+volumes:
+    mongo-data:
