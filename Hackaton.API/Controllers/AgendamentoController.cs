@@ -44,9 +44,14 @@ namespace Hackaton.API.Controllers
             {
                 foreach (var item in inputs)
                 {
+                    _logger.LogInformation("Validando dados de entrada...");
                     var validationResult = _validator.Validate(item);
 
-                    if (!validationResult.IsValid) { return BadRequest(validationResult.Errors); }
+                    if (!validationResult.IsValid) 
+                    {
+                        _logger.LogInformation("Dados inválidos");
+                        return BadRequest(validationResult.Errors); 
+                    }
 
                     var agendamento = new Agendamento()
                     {
