@@ -22,6 +22,8 @@ jobs:
       run: dotnet restore ./Hackaton.sln
     - name: Build
       run: dotnet build ./Hackaton.sln --configuration Release --no-restore
+    - name: Run Tests
+      run: dotnet test ./Hackaton.sln --configuration Release --no-restore --no-build
     - name: Docker Login
       uses: docker/login-action@v3.3.0
       with:
