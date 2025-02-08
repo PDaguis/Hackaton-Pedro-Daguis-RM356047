@@ -17,6 +17,15 @@ namespace Hackaton.Infra.Repositories
         {
         }
 
+        public async Task<IEnumerable<Consulta>> GetAllByPaciente(Guid pacienteId)
+        {
+            var filter = Builders<Consulta>.Filter.Eq(d => d.PacienteId, pacienteId);
+
+            return await _context.GetCollection<Consulta>(typeof(Consulta).Name)
+                .Find(filter)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Consulta>> GetAllByStatusMedico(EStatusConsulta status, Guid medicoId)
         {
             var filter = Builders<Consulta>.Filter.And(

@@ -11,5 +11,6 @@ namespace Hackaton.Core.Interfaces
     public interface IConsultaRepository : IGenericRepository<Consulta>
     {
         Task<IEnumerable<Consulta>> GetAllByStatusMedico(EStatusConsulta status, Guid medicoId);
+        Task<IEnumerable<Consulta>> GetAllByPaciente(Guid pacienteId);
     }
 }

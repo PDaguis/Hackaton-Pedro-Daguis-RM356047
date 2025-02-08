@@ -146,7 +146,7 @@ namespace Hackaton.Infra.Repositories
         {
             var filter = Builders<Medico>.Filter.Eq(x => x.Especialidade, especialidade);
 
-            return await _context.GetCollection<Medico>(typeof(Medico).Name)
+            return await _context.GetCollection<Usuario>(typeof(Usuario).Name)
                 .OfType<Medico>()
                 .Find(filter)
                 .ToListAsync();

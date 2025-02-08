@@ -11,7 +11,6 @@ namespace Hackaton.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class AgendamentoController : ControllerBase
     {
         private readonly IAgendamentoRepository _agendamentoRepository;
@@ -31,7 +30,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        //[Authorize(Roles = "Medico, Paciente")]
         public async Task<IActionResult> Cadastrar([FromBody] IEnumerable<CadastrarAgendamentoInput> inputs, Guid medicoId)
         {
             try
@@ -60,7 +59,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        //[Authorize(Roles = "Medico")]
         public async Task<IActionResult> Atualizar([FromBody] IEnumerable<AtualizarAgendamentoInput> inputs)
         {
             try
@@ -89,6 +88,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
+        [AllowAnonymous]
         public async Task<IActionResult> Listar()
         {
             try
@@ -110,6 +110,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterHorariosDisponiveisPorMedico(Guid medicoId, ObterHorariosDisponiveisMedicoInput input)
         {
             try

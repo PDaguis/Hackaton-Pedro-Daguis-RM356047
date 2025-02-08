@@ -29,8 +29,9 @@ namespace Hackaton.API.Security
             {
                 Subject = new ClaimsIdentity(
                 [
-                    new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, usuario.Email)
+                    new Claim(ClaimTypes.Sid, usuario.Id.ToString()),
+                    new Claim(ClaimTypes.Email, usuario.Email),
+                    new Claim(ClaimTypes.Role, usuario.Role.ToString())
                 ]),
                 Expires = DateTime.UtcNow.AddSeconds(_hackatonOptions.TokenExpiration),
                 SigningCredentials = credentials,

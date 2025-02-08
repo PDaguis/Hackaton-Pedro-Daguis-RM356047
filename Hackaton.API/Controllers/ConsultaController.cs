@@ -25,7 +25,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Paciente")]
+        //[Authorize(Roles = "Paciente")]
         public async Task<IActionResult> Agendar([FromBody] CadastrarConsultaInput input)
         {
             try
@@ -59,7 +59,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        //[Authorize(Roles = "Medico")]
         public async Task<IActionResult> Aprovar(Guid consultaId)
         {
             var consulta = await _consultaRepository.GetById(consultaId);
@@ -155,12 +155,34 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        //[Authorize(Roles = "Medico")]
         public async Task<IActionResult> ListarPorStatusMedico(EStatusConsulta statusConsulta, Guid medicoId)
         {
             try
             {
                 var consultas = await _consultaRepository.GetAllByStatusMedico(statusConsulta, medicoId);
+
+                if (consultas == null)
+                    return NoContent();
+
+                return Ok(consultas);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet("paciente/{pacienteId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500)]
+        //[Authorize(Roles = "Medico")]
+        public async Task<IActionResult> ListarPorPaciente(Guid pacienteId)
+        {
+            try
+            {
+                var consultas = await _consultaRepository.GetAllByPaciente(pacienteId);
 
                 if (consultas == null)
                     return NoContent();

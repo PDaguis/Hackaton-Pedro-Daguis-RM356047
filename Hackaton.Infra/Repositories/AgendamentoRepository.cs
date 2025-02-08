@@ -37,8 +37,15 @@ namespace Hackaton.Infra.Repositories
                 Builders<Agendamento>.Filter.Eq(d => d.Disponivel, true)
             );
 
+            var filter2 = Builders<Agendamento>.Filter.And(
+                Builders<Agendamento>.Filter.Where(x => x.MedicoId == medicoId),
+                Builders<Agendamento>.Filter.Where(x => x.DataHora >= dataInicio),
+                Builders<Agendamento>.Filter.Where(x => x.DataHora <= dataFinal),
+                Builders<Agendamento>.Filter.Where(x => x.Disponivel == true)
+            );
+
             return await _context.GetCollection<Agendamento>(typeof(Agendamento).Name)
-                .Find(filter)
+                .Find(filter2)
                 .SortBy(x => x.DataHora)
                 .ToListAsync();
         }
