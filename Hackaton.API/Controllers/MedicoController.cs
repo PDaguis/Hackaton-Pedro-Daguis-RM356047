@@ -1,5 +1,6 @@
 ﻿using Hackaton.API.DTO.Inputs.Medico;
 using Hackaton.Core.Entities;
+using Hackaton.Core.Enumerators;
 using Hackaton.Core.Interfaces;
 using Hackaton.Infra.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -196,6 +197,48 @@ namespace Hackaton.API.Controllers
             catch (Exception e)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet("especialidades")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ObterEspecialidades()
+        {
+            try
+            {
+                var especialidades = await _medicoRepository.ListarEspecialidades();
+
+                if (especialidades == null)
+                    return NoContent();
+
+                return Ok(especialidades);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet("especialidade/{especialidade}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ObterPorEspecialidade(EEspecialidade especialidade)
+        {
+            try
+            {
+                var medicos = await _medicoRepository.ObterPorEspecialidade(especialidade);
+
+                if (medicos == null)
+                    return NoContent();
+
+                return Ok(medicos);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
     }

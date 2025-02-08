@@ -26,5 +26,10 @@ namespace Hackaton.Infra.Context
         {
             return _database.GetCollection<T>(name);
         }
+
+        public async Task<IClientSession> StartSessionAsync()
+        {
+            return await _database.Client.StartSessionAsync();
+        }
     }
 }

@@ -9,5 +9,8 @@ namespace Hackaton.Core.Interfaces
 {
     public interface IAgendamentoRepository : IGenericRepository<Agendamento>
     {
+        Task<Agendamento> ObterPorData(DateTime data);
+        Task<IEnumerable<Agendamento>> ObterHorariosDisponiveisPorMedico(Guid medicoId, DateTime dataInicio, DateTime dataFinal);
+        Task<Agendamento> ObterDisponivel(Guid id);
     }
 }

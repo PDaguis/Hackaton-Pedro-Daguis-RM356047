@@ -24,25 +24,56 @@ namespace Hackaton.API.Controllers
         /// </summary>
         /// <param name="input">Objeto de input para criar o agendamento</param>
         /// <returns>Retorna OK(200) caso sucesso ou status code de erro</returns>
-        [HttpPost]
+        [HttpPost("{medicoId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Cadastrar([FromBody] CadastrarAgendamentoInput input)
+        public async Task<IActionResult> Cadastrar([FromBody] IEnumerable<CadastrarAgendamentoInput> inputs, Guid medicoId)
         {
             try
             {
-                var agendamento = new Agendamento()
+                foreach (var item in inputs)
                 {
-                    Data = input.Data.Date,
-                    MedicoId = input.MedicoId,
-                    Horarios = input.Horarios
-                };
+                    var agendamento = new Agendamento()
+                    {
+                        MedicoId = medicoId,
+                        DataHora = item.DataHora
+                    };
 
-                await _agendamentoRepository.Cadastrar(agendamento);
+                    await _agendamentoRepository.Cadastrar(agendamento);
+                }
 
                 return Created();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpPatch]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> Atualizar([FromBody] IEnumerable<AtualizarAgendamentoInput> inputs)
+        {
+            try
+            {
+                foreach (var input in inputs)
+                {
+                    var agendamento = await _agendamentoRepository.GetById(input.AgendamentoId);
+
+                    if (agendamento == null)
+                        return NotFound();
+
+                    agendamento.DataHora = input.NovaDataHora;
+
+                    await _agendamentoRepository.Atualizar(agendamento);
+                }
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -64,6 +95,27 @@ namespace Hackaton.API.Controllers
                     return NoContent();
 
                 return Ok(agendamentos);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpPost("horarios-por-medico/{medicoId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ObterHorariosDisponiveisPorMedico(Guid medicoId, ObterHorariosDisponiveisMedicoInput input)
+        {
+            try
+            {
+                var horarios = await _agendamentoRepository.ObterHorariosDisponiveisPorMedico(medicoId, input.DataInicio, input.DataFinal);
+
+                if(horarios == null)
+                    return NoContent();
+
+                return Ok(horarios);
             }
             catch (Exception e)
             {

@@ -17,7 +17,7 @@ namespace Hackaton.Core.Entities
         }
 
         [BsonId]
-        [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("entityId")]
         public ObjectId EntityId { get; set; }
 

@@ -14,15 +14,5 @@ namespace Hackaton.Core.Entities
 
         [BsonElement("disponivel")]
         public bool Disponivel { get; set; } = true;
-
-        public void BloquearHorario()
-        {
-            Disponivel = false;
-        }
-
-        public void LiberarHorario()
-        {
-            Disponivel = true;
-        }
     }
 }

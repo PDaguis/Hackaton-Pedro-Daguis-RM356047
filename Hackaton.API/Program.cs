@@ -1,3 +1,4 @@
+using Hackaton.Core.Enumerators;
 using Hackaton.Core.Interfaces;
 using Hackaton.Infra.Context;
 using Hackaton.Infra.Repositories;
@@ -34,7 +35,8 @@ builder.Services.AddCors(opt =>
 
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
-ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
+//ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
+//BsonSerializer.RegisterSerializer(new EnumStringSerializer<EEspecialidade>());
 
 builder.Services.Configure<HackatonOptions>(opt => configuration.GetSection("DatabaseConfiguration").Bind(opt));
 
@@ -44,6 +46,7 @@ builder.Services.AddScoped<IMedicoRepository, MedicoRepository>();
 builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
 builder.Services.AddScoped<IAgendamentoRepository, AgendamentoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
 
 var app = builder.Build();
 

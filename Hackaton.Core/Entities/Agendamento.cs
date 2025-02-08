@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,29 +16,22 @@ namespace Hackaton.Core.Entities
         [BsonElement("consultaId")]
         public  Guid? ConsultaId { get; set; }
 
-        public virtual Medico Medico { get; set; }
-
         [BsonElement("medicoId")]
-        public required Guid MedicoId { get; set; }
+        public Guid MedicoId { get; set; }
 
-        [BsonElement("horarios")]
-        public List<HorarioAgenda> Horarios { get; set; }
-        public DateTime Data { get; set; }
+        [BsonElement("dataHora")]
+        public DateTime DataHora { get; set; }
 
-        public void AddHorario(HorarioAgenda horario)
+        [BsonElement("disponivel")]
+        public bool Disponivel { get; set; } = true;
+
+        public void BloquearHorario()
         {
-            if (horario == null)
-                return;
-
-            if (Horarios == null)
-                Horarios = new List<HorarioAgenda>();
-
-            Horarios.Add(horario);
+            Disponivel = false;
         }
-
-        public IEnumerable<HorarioAgenda> ListarHorariosDisponiveis()
+        public void LiberarHorario()
         {
-            return Horarios.Where(x => x.Disponivel == true).AsEnumerable();
+            Disponivel = true;
         }
     }
 }

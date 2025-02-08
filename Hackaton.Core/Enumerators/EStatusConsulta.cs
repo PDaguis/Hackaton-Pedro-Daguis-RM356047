@@ -8,9 +8,10 @@ namespace Hackaton.Core.Enumerators
 {
     public enum EStatusConsulta
     {
-        Pendente,
-        Aprovada,
-        Recusada,
-        Finalizada
+        Solicitada = 1,
+        Pendente = 2,
+        Aprovada = 3,
+        Cancelada = 4,
+        Finalizada = 5
     }
 }
