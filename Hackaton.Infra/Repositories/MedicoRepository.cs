@@ -22,15 +22,6 @@ namespace Hackaton.Infra.Repositories
             return Task.FromResult(Enum.GetValues<EEspecialidade>().AsEnumerable());
         }
 
-        public Task<Medico> ObterPorCrm(string crm)
-        {
-            var filter = Builders<Medico>.Filter.Eq(x => x.Crm, crm);
-
-            return _context.GetCollection<Medico>(typeof(Medico).Name)
-                .Find(filter)
-                .FirstOrDefaultAsync();
-        }
-
         public async Task<IEnumerable<Medico>> ObterPorEspecialidade(EEspecialidade especialidade)
         {
             var filter = Builders<Medico>.Filter.Eq(x => x.Especialidade, especialidade);

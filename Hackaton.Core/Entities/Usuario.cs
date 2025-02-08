@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using Hackaton.Core.Enumerators;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +19,8 @@ namespace Hackaton.Core.Entities
         [BsonElement("senhaHash")]
         public string SenhaHash { get; private set; }
 
-        [BsonElement("senha")]
-        public string Senha { get; private set; }
-
-        public abstract bool VerificarEmail(string email);
+        [BsonElement("role")]
+        public ERole Role { get; set; }
 
         public void CriptografarSenha(string senha)
         {

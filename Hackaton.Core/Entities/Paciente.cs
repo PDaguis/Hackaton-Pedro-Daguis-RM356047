@@ -17,10 +17,5 @@ namespace Hackaton.Core.Entities
         [BsonRepresentation(BsonType.String)]
         [BsonElement("genero")]
         public EGenero? Genero { get; set; }
-
-        public override bool VerificarEmail(string email)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

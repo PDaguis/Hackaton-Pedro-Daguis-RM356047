@@ -12,39 +12,12 @@ namespace Hackaton.API.Controllers
     public class PacienteController : ControllerBase
     {
         private readonly IPacienteRepository _pacienteRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public PacienteController(IPacienteRepository pacienteRepository)
+        public PacienteController(IPacienteRepository pacienteRepository, IUsuarioRepository usuarioRepository)
         {
             _pacienteRepository = pacienteRepository;
-        }
-
-        [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> Cadastrar([FromBody] CadastrarPacienteInput input)
-        {
-            try
-            {
-                var paciente = new Paciente()
-                {
-                    Cpf = input.Cpf,
-                    Nome = input.Nome,
-                    Email = input.Email,
-                    Genero = input.Genero.HasValue ? input.Genero.Value : EGenero.NaoInformado
-                };
-
-                paciente.CriptografarSenha(input.Senha);
-
-                await _pacienteRepository.Cadastrar(paciente);
-
-                return Created();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            _usuarioRepository = usuarioRepository;
         }
 
         [HttpPut]
@@ -56,7 +29,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var paciente = await _pacienteRepository.GetById(input.Id);
+                var paciente = await _usuarioRepository.ObterPacientePorId(input.Id);
 
                 if (paciente == null)
                     return NotFound();
@@ -68,7 +41,7 @@ namespace Hackaton.API.Controllers
 
                 paciente.CriptografarSenha(input.Senha);
 
-                await _pacienteRepository.Atualizar(paciente);
+                await _usuarioRepository.Atualizar(paciente);
 
                 return Ok();
             }
@@ -87,7 +60,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var paciente = await _pacienteRepository.GetById(id);
+                var paciente = await _usuarioRepository.ObterPacientePorId(id);
 
                 if (paciente == null)
                     return NotFound();
@@ -125,7 +98,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var pacientes = await _pacienteRepository.GetAll();
+                var pacientes = await _usuarioRepository.Listar(ERole.Paciente);
 
                 if (pacientes == null)
                     return NoContent();
@@ -147,7 +120,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var paciente = await _pacienteRepository.GetById(id);
+                var paciente = await _usuarioRepository.ObterPacientePorId(id);
 
                 if (paciente == null)
                     return NotFound();

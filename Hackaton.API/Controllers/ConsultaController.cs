@@ -2,6 +2,7 @@
 using Hackaton.Core.Entities;
 using Hackaton.Core.Enumerators;
 using Hackaton.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Paciente")]
         public async Task<IActionResult> Agendar([FromBody] CadastrarConsultaInput input)
         {
             try
@@ -57,6 +59,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Aprovar(Guid consultaId)
         {
             var consulta = await _consultaRepository.GetById(consultaId);
@@ -94,6 +97,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Finalizar(Guid consultaId)
         {
             try
@@ -147,11 +151,11 @@ namespace Hackaton.API.Controllers
             }
         }
 
-
         [HttpGet("status/{statusConsulta}/{medicoId}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> ListarPorStatusMedico(EStatusConsulta statusConsulta, Guid medicoId)
         {
             try

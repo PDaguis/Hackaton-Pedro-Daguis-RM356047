@@ -3,6 +3,7 @@ using Hackaton.Core.Entities;
 using Hackaton.Core.Enumerators;
 using Hackaton.Core.Interfaces;
 using Hackaton.Infra.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,37 +14,12 @@ namespace Hackaton.API.Controllers
     public class MedicoController : ControllerBase
     {
         private readonly IMedicoRepository _medicoRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public MedicoController(IMedicoRepository medicoRepository)
+        public MedicoController(IMedicoRepository medicoRepository, IUsuarioRepository usuarioRepository)
         {
             _medicoRepository = medicoRepository;
-        }
-
-        [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> Cadastrar([FromBody] CadastrarMedicoInput input)
-        {
-            try
-            {
-                var medico = new Medico()
-                {
-                    Crm = input.Crm,
-                    Email = input.Email,
-                    Nome = input.Nome,
-                    Especialidade = input.Especialidade
-                };
-
-                medico.CriptografarSenha(input.Senha);
-
-                await _medicoRepository.Cadastrar(medico);
-
-                return Created();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
+            _usuarioRepository = usuarioRepository;
         }
 
         [HttpPut]
@@ -54,7 +30,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var medico = await _medicoRepository.GetById(input.Id);
+                var medico = await _usuarioRepository.ObterMedicoPorId(input.Id);
 
                 if (medico == null)
                     return NotFound();
@@ -66,7 +42,7 @@ namespace Hackaton.API.Controllers
 
                 medico.CriptografarSenha(input.Senha);
 
-                await _medicoRepository.Atualizar(medico);
+                await _usuarioRepository.Atualizar(medico);
 
                 return Ok();
             }
@@ -85,12 +61,12 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var medico = await _medicoRepository.GetById(id);
+                var medico = await _usuarioRepository.GetById(id);
 
                 if (medico == null)
                     return NotFound();
 
-                await _medicoRepository.Excluir(id);
+                await _usuarioRepository.Excluir(id);
 
                 return Ok();
             }
@@ -107,7 +83,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                await _medicoRepository.ExcluirTudo();
+                await _usuarioRepository.ExcluirTudo();
                 return Ok();
             }
             catch (Exception e)
@@ -124,7 +100,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var medicos = await _medicoRepository.GetAll();
+                var medicos = await _usuarioRepository.Listar(ERole.Medico);
 
                 if (medicos == null)
                     return NoContent();
@@ -145,28 +121,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var medico = await _medicoRepository.GetById(id);
-
-                if (medico == null)
-                    return NotFound();
-
-                return Ok(medico);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-            }
-        }
-
-        [HttpGet("crm/{crm}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
-        public async Task<IActionResult> ObterPorCrm(string crm)
-        {
-            try
-            {
-                var medico = await _medicoRepository.ObterPorCrm(crm);
+                var medico = await _usuarioRepository.GetById(id);
 
                 if (medico == null)
                     return NotFound();
@@ -187,7 +142,28 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var medico = await _medicoRepository.ObterPorNome(nome);
+                var medico = await _usuarioRepository.ObterPorNome(nome);
+
+                if (medico == null)
+                    return NotFound();
+
+                return Ok(medico);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet("crm/{crm}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ObterPorCrm(string crm)
+        {
+            try
+            {
+                var medico = await _usuarioRepository.ObterPorCrm(crm);
 
                 if (medico == null)
                     return NotFound();
@@ -229,7 +205,7 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var medicos = await _medicoRepository.ObterPorEspecialidade(especialidade);
+                var medicos = await _usuarioRepository.ObterPorEspecialidade(especialidade);
 
                 if (medicos == null)
                     return NoContent();

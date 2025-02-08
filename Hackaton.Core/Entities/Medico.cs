@@ -47,10 +47,5 @@ namespace Hackaton.Core.Entities
         {
             return Agendas;
         }
-
-        public override bool VerificarEmail(string email)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

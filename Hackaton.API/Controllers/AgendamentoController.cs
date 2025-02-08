@@ -2,6 +2,7 @@
 using Hackaton.Core.Entities;
 using Hackaton.Core.Interfaces;
 using Hackaton.Infra.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace Hackaton.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AgendamentoController : ControllerBase
     {
         private readonly IAgendamentoRepository _agendamentoRepository;
@@ -29,6 +31,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Cadastrar([FromBody] IEnumerable<CadastrarAgendamentoInput> inputs, Guid medicoId)
         {
             try
@@ -57,6 +60,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Atualizar([FromBody] IEnumerable<AtualizarAgendamentoInput> inputs)
         {
             try
@@ -126,6 +130,7 @@ namespace Hackaton.API.Controllers
         [HttpDelete("excluir-tudo")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> ExcluirTudo()
         {
             try
