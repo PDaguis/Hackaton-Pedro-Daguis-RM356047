@@ -26,7 +26,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Administrador, Medico")]
         public async Task<IActionResult> Atualizar([FromBody] AtualizarMedicoInput input)
         {
             try
@@ -58,7 +58,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Excluir(Guid id)
         {
             try
@@ -81,6 +81,7 @@ namespace Hackaton.API.Controllers
         [HttpDelete("excluir-tudo")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> ExcluirTudo()
         {
             try
@@ -98,6 +99,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> Listar()
         {
             try
@@ -119,6 +121,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> ObterPorId(Guid id)
         {
             try
@@ -140,6 +143,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> ObterPorNome(string nome)
         {
             try
@@ -161,6 +165,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> ObterPorCrm(string crm)
         {
             try
@@ -203,6 +208,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> ObterPorEspecialidade(EEspecialidade especialidade)
         {
             try

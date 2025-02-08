@@ -105,6 +105,7 @@ namespace Hackaton.Infra.Repositories
                 Builders<Paciente>.Filter.Eq(u => u.Cpf, documento),
                 Builders<Paciente>.Filter.Eq(u => u.Email, documento)
             );
+            var adminFilter = Builders<Administrador>.Filter.Eq(u => u.Email, documento);
 
             var usuarioFilter = Builders<Usuario>.Filter.Or(
                 Builders<Usuario>.Filter.And(
@@ -117,6 +118,10 @@ namespace Hackaton.Infra.Repositories
                         Builders<Usuario>.Filter.Eq(u => ((Paciente)u).Cpf, documento),
                         Builders<Usuario>.Filter.Eq(u => ((Paciente)u).Email, documento)
                     )
+                ),
+                Builders<Usuario>.Filter.And(
+                    Builders<Usuario>.Filter.Eq(u => u.Role, ERole.Administrador),
+                    Builders<Usuario>.Filter.Eq(u => ((Administrador)u).Email, documento)
                 )
             );
 

@@ -1,4 +1,5 @@
 ﻿using Hackaton.Core.Entities;
+using Hackaton.Core.Enumerators;
 
 namespace Hackaton.Core.Entities.Roles.Domain
 {

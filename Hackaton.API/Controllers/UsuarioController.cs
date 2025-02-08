@@ -85,6 +85,12 @@ namespace Hackaton.API.Controllers
                         Crm = input.Crm,
                         Especialidade = input.Especialidade.Value
                     },
+                    ERole.Administrador => new Administrador
+                    {
+                        Nome = input.Nome,
+                        Email = input.Email,
+                        Role = ERole.Administrador
+                    },
                     _ => throw new ArgumentException("Regra não especificada")
                 };
 
@@ -94,7 +100,7 @@ namespace Hackaton.API.Controllers
 
                 var usuarioRole = new UsuarioRole
                 {
-                    RoleId = usuario.Role == ERole.Paciente ? Role.PacienteId : Role.MedicoId,
+                    RoleId = (int)usuario.Role, // == ERole.Paciente ? Role.PacienteId : Role.MedicoId,
                     UsuarioId = usuario.Id,
                     Usuario = usuario
                 };
@@ -108,5 +114,10 @@ namespace Hackaton.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
+
+        //public int GetRoleId(ERole)
+        //{
+
+        //}
     }
 }

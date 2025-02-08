@@ -75,12 +75,14 @@ namespace Hackaton.API.Controllers
             }
         }
 
-        [HttpDelete("deletar-tudo")]
-        public async Task<IActionResult> DeletarTudo()
+        [HttpDelete("excluir-tudo")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ExcluirTudo()
         {
             try
             {
-                await _pacienteRepository.ExcluirTudo();
+                await _usuarioRepository.ExcluirTudo();
                 return Ok();
             }
             catch (Exception e)

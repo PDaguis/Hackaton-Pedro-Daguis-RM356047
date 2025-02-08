@@ -30,7 +30,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        //[Authorize(Roles = "Medico, Paciente")]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Cadastrar([FromBody] IEnumerable<CadastrarAgendamentoInput> inputs, Guid medicoId)
         {
             try
@@ -59,7 +59,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        //[Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Atualizar([FromBody] IEnumerable<AtualizarAgendamentoInput> inputs)
         {
             try
@@ -88,7 +88,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
-        [AllowAnonymous]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> Listar()
         {
             try
@@ -110,7 +110,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
-        [AllowAnonymous]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> ObterHorariosDisponiveisPorMedico(Guid medicoId, ObterHorariosDisponiveisMedicoInput input)
         {
             try
@@ -131,7 +131,7 @@ namespace Hackaton.API.Controllers
         [HttpDelete("excluir-tudo")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> ExcluirTudo()
         {
             try

@@ -25,7 +25,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
-        //[Authorize(Roles = "Paciente")]
+        [Authorize(Roles = "Administrador, Paciente")]
         public async Task<IActionResult> Agendar([FromBody] CadastrarConsultaInput input)
         {
             try
@@ -59,7 +59,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(201)]
         [ProducesResponseType(500)]
-        //[Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Aprovar(Guid consultaId)
         {
             var consulta = await _consultaRepository.GetById(consultaId);
@@ -124,6 +124,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> Cancelar([FromBody] CancelarConsultaInput input, Guid consultaId)
         {
             try
@@ -155,7 +156,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        //[Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Administrador, Medico")]
         public async Task<IActionResult> ListarPorStatusMedico(EStatusConsulta statusConsulta, Guid medicoId)
         {
             try
@@ -177,7 +178,8 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        //[Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Medico")]
+        [Authorize(Roles = "Administrador, Medico, Paciente")]
         public async Task<IActionResult> ListarPorPaciente(Guid pacienteId)
         {
             try
@@ -198,6 +200,7 @@ namespace Hackaton.API.Controllers
         [HttpDelete("excluir-tudo")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> ExcluirTudo()
         {
             try

@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hackaton.Core.Enumerators
+namespace Hackaton.Core.Entities
 {
-    public enum ERole
+    public class Administrador : Usuario
     {
-        Paciente = 1,
-        Medico = 2,
-        Administrador = 3
     }
 }
