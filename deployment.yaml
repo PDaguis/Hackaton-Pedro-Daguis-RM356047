@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hackaton-deployment
+    labels:
+	  app: hackaton
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hackaton
+  template:
+    metadata:
+      labels:
+        app: hackaton
+    spec:
+      containers:
+        - name: hackaton
+          image: pdaguis/hackaton:latest
+          ports:
+          - containerPort: 80
+            name: http-web-svc
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Release"
+          - name: ASPNETCORE_URLS
+            value: "http://*:80"
+          - name: DatabaseName
+            value: "Hackaton"
+          - name: SecretKey
+            value: "aGFja2F0b25zZWNyZXRrZXkxNjIzNDI="
+          - name: TokenExpiration
+            value: 86400
+          - name: Issuer
+            value: "HackatonAudience"
+          - name: Audience
+            value: "HackatonAudience"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hackaton-service
+spec:
+  selector:
+    app: hackaton
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer  
