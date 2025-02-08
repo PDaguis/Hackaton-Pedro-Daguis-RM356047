@@ -73,6 +73,7 @@ namespace Hackaton.API.Controllers
             try
             {
                 _logger.LogInformation($"Obtendo paciente {id}...");
+                _logger.LogInformation($"Testando ci/cd paciente {id}...");
                 var paciente = await _usuarioRepository.ObterPacientePorId(id);
 
                 if (paciente == null)
