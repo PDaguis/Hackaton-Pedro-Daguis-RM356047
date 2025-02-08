@@ -1,3 +1,5 @@
+using Hackaton.API.Extensions;
+using Hackaton.API.Logging;
 using Hackaton.API.Security;
 using Hackaton.Core.Enumerators;
 using Hackaton.Core.Interfaces;
@@ -38,22 +40,13 @@ builder.Services.AddCors(opt =>
     });
 });
 
+builder.Logging.ClearProviders();
+builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration() { LogLevel = LogLevel.Information }));
+
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 MongoDbClassMapping.RegisterClassMaps();
 
-builder.Services.AddAuthorization();
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(o =>
-    {
-        o.RequireHttpsMetadata = false;
-        o.TokenValidationParameters = new TokenValidationParameters
-        {
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["DatabaseConfiguration:SecretKey"])),
-            ValidIssuer = configuration["DatabaseConfiguration:Issuer"],
-            ValidAudience = configuration["DatabaseConfiguration:Audience"]
-        };
-    });
+builder.Services.AddSecurity(configuration);
 
 builder.Services.Configure<HackatonOptions>(opt => configuration.GetSection("DatabaseConfiguration").Bind(opt));
 
@@ -61,13 +54,7 @@ builder.Services.AddScoped<ApplicationDbContext>();
 
 builder.Services.AddScoped<TokenProvider>();
 
-builder.Services.AddScoped<IMedicoRepository, MedicoRepository>();
-builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
-builder.Services.AddScoped<IAgendamentoRepository, AgendamentoRepository>();
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IUsuarioRoleRepository, UsuarioRoleRepository>();
+builder.Services.AddDependencyInjections();
 
 var app = builder.Build();
 

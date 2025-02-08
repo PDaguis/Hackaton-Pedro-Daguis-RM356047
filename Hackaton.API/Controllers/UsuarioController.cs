@@ -19,12 +19,14 @@ namespace Hackaton.API.Controllers
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IUsuarioRoleRepository _usuarioRoleRepository;
         private readonly TokenProvider _tokenProvider;
+        private readonly ILogger<MedicoController> _logger;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository)
+        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository, ILogger<MedicoController> logger)
         {
             _usuarioRepository = usuarioRepository;
             _tokenProvider = tokenProvider;
             _usuarioRoleRepository = usuarioRoleRepository;
+            _logger = logger;
         }
 
         [HttpPost("login")]
@@ -36,20 +38,28 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Obtendo usuário por documento {input.Documento}...");
                 var usuario = await _usuarioRepository.ObterPorDocumento(input.Documento);
 
                 if (usuario == null)
-                    return NotFound();
+                {
+                    _logger.LogError("Usuário não encontrado");
+                    return NotFound("Usuário não encontrado");
+                }
 
+                _logger.LogInformation("Validando senha...");
                 if (!usuario.ValidarSenha(input.Senha))
                     return BadRequest("Senha inválida!");
 
+                _logger.LogInformation("Gerando token...");
                 var token = await _tokenProvider.GenerateToken(usuario);
 
+                _logger.LogInformation("Login e Token gerado com sucesso!");
                 return Ok(token);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -62,11 +72,16 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Verificando se usuário {input.Email} já existe...");
                 var usuarioExiste = await _usuarioRepository.ObterPorEmail(input.Email);
 
                 if (usuarioExiste != null)
+                {
+                    _logger.LogError("Usuário já existe");
                     return BadRequest("Usuário já existe");
+                }
 
+                _logger.LogInformation($"Montando objeto usuário...");
                 Usuario usuario = input.Role switch
                 {
                     ERole.Paciente => new Paciente
@@ -93,31 +108,32 @@ namespace Hackaton.API.Controllers
                     },
                     _ => throw new ArgumentException("Regra não especificada")
                 };
+                _logger.LogInformation($"Usuário {usuario.Role.GetDisplayName()}...");
 
+                _logger.LogInformation($"Criptografando senha...");
                 usuario.CriptografarSenha(input.Senha);
 
+                _logger.LogInformation($"Cadastrando usuário...");
                 await _usuarioRepository.Cadastrar(usuario);
 
+                _logger.LogInformation($"Montando objeto role do usuário...");
                 var usuarioRole = new UsuarioRole
                 {
-                    RoleId = (int)usuario.Role, // == ERole.Paciente ? Role.PacienteId : Role.MedicoId,
+                    RoleId = (int)usuario.Role,
                     UsuarioId = usuario.Id,
                     Usuario = usuario
                 };
 
+                _logger.LogInformation($"Cadastrando role do usuário...");
                 await _usuarioRoleRepository.Cadastrar(usuarioRole);
 
                 return Created();
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
-
-        //public int GetRoleId(ERole)
-        //{
-
-        //}
     }
 }

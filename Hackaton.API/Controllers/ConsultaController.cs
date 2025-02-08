@@ -14,11 +14,13 @@ namespace Hackaton.API.Controllers
     {
         private readonly IConsultaRepository _consultaRepository;
         private readonly IAgendamentoRepository _agendamentoRepository;
+        private readonly ILogger<ConsultaController> _logger;
 
-        public ConsultaController(IConsultaRepository consultaRepository, IAgendamentoRepository agendamentoRepository)
+        public ConsultaController(IConsultaRepository consultaRepository, IAgendamentoRepository agendamentoRepository, ILogger<ConsultaController> logger)
         {
             _consultaRepository = consultaRepository;
             _agendamentoRepository = agendamentoRepository;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -30,10 +32,14 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Verificando se existe o agendamento disponível para a agenda {input.AgendaId}...");
                 var agendamento = await _agendamentoRepository.ObterDisponivel(input.AgendaId);
 
                 if (agendamento == null)
+                {
+                    _logger.LogInformation("Agenda indisponível");
                     return BadRequest("Agenda indisponível");
+                }
 
                 var consulta = new Consulta()
                 {
@@ -46,11 +52,13 @@ namespace Hackaton.API.Controllers
 
                 consulta.AddStatus(EStatusConsulta.Solicitada);
 
+                _logger.LogInformation($"Solicitando consulta do paciente {input.PacienteId} para o médico {input.MedicoId}");
                 await _consultaRepository.Cadastrar(consulta);
                 return Created();
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -62,27 +70,43 @@ namespace Hackaton.API.Controllers
         [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Aprovar(Guid consultaId)
         {
+            _logger.LogInformation($"Obtendo consulta {consultaId}...");
             var consulta = await _consultaRepository.GetById(consultaId);
 
             if (consulta == null)
+            {
+                _logger.LogInformation("Consulta não encontrada");
                 return NotFound();
+            }
 
+            _logger.LogInformation($"Obtendo agendamento {consulta.AgendaId}...");
             var agendamento = await _agendamentoRepository.GetById(consulta.AgendaId);
 
+            if(agendamento == null)
+            {
+                _logger.LogInformation("Agendamento não encontrado");
+                return NotFound();
+            }
+
+            _logger.LogError($"Aprovando consulta {consultaId}...");
             consulta.Aprovar();
 
             try
             {
+                _logger.LogError($"Atualizando consulta {consultaId}...");
                 await Atualizar(consulta);
 
+                _logger.LogError($"Bloqueando horário do agendamento {consulta.AgendaId}...");
                 agendamento.BloquearHorario();
 
+                _logger.LogError($"Atualizando agendamento {consulta.AgendaId}...");
                 await _agendamentoRepository.Atualizar(agendamento);
 
                 return Ok();
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 agendamento.LiberarHorario();
                 consulta.VoltarParaSolicitada();
 
@@ -102,13 +126,19 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Obtendo consulta {consultaId}...");
                 var consulta = await _consultaRepository.GetById(consultaId);
 
                 if (consulta == null)
+                {
+                    _logger.LogInformation("Consulta não encontrada");
                     return NotFound();
+                }
 
+                _logger.LogInformation($"Finalizando consulta {consultaId}...");
                 consulta.Finalizar();
 
+                _logger.LogInformation($"Atualizando consulta {consultaId}...");
                 await Atualizar(consulta);
 
                 return Ok();
@@ -129,25 +159,35 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Obtendo consulta {consultaId}...");
                 var consulta = await _consultaRepository.GetById(consultaId);
 
                 if (consulta == null)
+                {
+                    _logger.LogInformation("Consulta não encontrada");
                     return NotFound();
+                }
 
+                _logger.LogInformation($"Cancelando consulta {consultaId}...");
                 consulta.Cancelar(input.Motivo);
 
+                _logger.LogInformation($"Atualizando consulta {consultaId}...");
                 await Atualizar(consulta);
 
+                _logger.LogInformation($"Obtendo agendamento {consulta.AgendaId}...");
                 var agendamento = await _agendamentoRepository.GetById(consulta.AgendaId);
 
+                _logger.LogInformation($"Liberando horário do agendamento {consulta.AgendaId}...");
                 agendamento.LiberarHorario();
 
+                _logger.LogInformation($"Atualizando agendamento {consulta.AgendaId}...");
                 await _agendamentoRepository.Atualizar(agendamento);
 
                 return Ok(consulta);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -161,15 +201,20 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Obtendo consultas com status {statusConsulta} do médico {medicoId}...");
                 var consultas = await _consultaRepository.GetAllByStatusMedico(statusConsulta, medicoId);
 
                 if (consultas == null)
+                {
+                    _logger.LogInformation("Nenhuma consulta encontrada");
                     return NoContent();
+                }
 
                 return Ok(consultas);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -184,15 +229,20 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Obtendo consultas do paciente {pacienteId}...");
                 var consultas = await _consultaRepository.GetAllByPaciente(pacienteId);
 
                 if (consultas == null)
+                {
+                    _logger.LogInformation("Nenhuma consulta encontrada");
                     return NoContent();
+                }
 
                 return Ok(consultas);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -205,11 +255,14 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation("Excluindo todas as consultas...");
                 await _consultaRepository.ExcluirTudo();
+
                 return Ok();
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }

@@ -14,10 +14,12 @@ namespace Hackaton.API.Controllers
     public class AgendamentoController : ControllerBase
     {
         private readonly IAgendamentoRepository _agendamentoRepository;
+        private readonly ILogger<AgendamentoController> _logger;
 
-        public AgendamentoController(IAgendamentoRepository agendamentoRepository)
+        public AgendamentoController(IAgendamentoRepository agendamentoRepository, ILogger<AgendamentoController> logger)
         {
             _agendamentoRepository = agendamentoRepository;
+            _logger = logger;
         }
 
         /// <summary>
@@ -43,13 +45,14 @@ namespace Hackaton.API.Controllers
                         DataHora = item.DataHora
                     };
 
+                    _logger.LogInformation($"Cadastrando agendamento para o médico {medicoId} na data {item.DataHora}");
                     await _agendamentoRepository.Cadastrar(agendamento);
                 }
-
                 return Created();
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -66,13 +69,18 @@ namespace Hackaton.API.Controllers
             {
                 foreach (var input in inputs)
                 {
+                    _logger.LogInformation($"Obtendo agendamento {input.AgendamentoId}...");
                     var agendamento = await _agendamentoRepository.GetById(input.AgendamentoId);
 
                     if (agendamento == null)
+                    {
+                        _logger.LogError($"Agendamento {input.AgendamentoId} não encontrado");
                         return NotFound();
+                    }
 
                     agendamento.DataHora = input.NovaDataHora;
 
+                    _logger.LogInformation($"Atualizando agendamento {input.AgendamentoId} para a nova data {input.NovaDataHora}");
                     await _agendamentoRepository.Atualizar(agendamento);
                 }
 
@@ -80,6 +88,7 @@ namespace Hackaton.API.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -93,15 +102,20 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation("Obtendo agendamentos...");
                 var agendamentos = await _agendamentoRepository.GetAll();
 
                 if (agendamentos == null)
+                {
+                    _logger.LogInformation("Nenhum agendamento encontrado");
                     return NoContent();
+                }
 
                 return Ok(agendamentos);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -115,15 +129,20 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                _logger.LogInformation($"Obtendo horários disponíveis para o médico {medicoId} entre {input.DataInicio} e {input.DataFinal}");
                 var horarios = await _agendamentoRepository.ObterHorariosDisponiveisPorMedico(medicoId, input.DataInicio, input.DataFinal);
 
                 if(horarios == null)
+                {
+                    _logger.LogInformation("Nenhum horário disponível encontrado");
                     return NoContent();
+                }
 
                 return Ok(horarios);
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
@@ -131,16 +150,18 @@ namespace Hackaton.API.Controllers
         [HttpDelete("excluir-tudo")]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador, Medico")]
         public async Task<IActionResult> ExcluirTudo()
         {
             try
             {
+                _logger.LogInformation("Excluindo todos os agendamentos...");
                 await _agendamentoRepository.ExcluirTudo();
                 return Ok();
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
