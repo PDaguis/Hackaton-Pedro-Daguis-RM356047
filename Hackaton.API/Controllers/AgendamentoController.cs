@@ -97,7 +97,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(500)]
-        [Authorize(Roles = "Administrador, Medico, Paciente")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Listar()
         {
             try

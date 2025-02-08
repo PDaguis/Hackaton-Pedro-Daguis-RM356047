@@ -10,5 +10,6 @@ namespace Hackaton.Core.Interfaces
     public interface IRoleRepository : IGenericRepository<Role>
     {
         Task<Role> GetByRoleId(int id);
+        Task<bool> Exists();
     }
 }

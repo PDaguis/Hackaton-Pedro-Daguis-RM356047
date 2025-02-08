@@ -9,8 +9,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      # - DatabaseConfiguration__ConnectionString=mongodb://mongo:27017;
       - DatabaseConfiguration__DatabaseName=Hackaton
+      - DatabaseConfiguration__SecretKey=aGFja2F0b25zZWNyZXRrZXkxNjIzNDI=
+      - DatabaseConfiguration__TokenExpiration=86400
+      - DatabaseConfiguration__Issuer=Hackaton
+      - DatabaseConfiguration__Audience=HackatonAudience
     depends_on:
       - mongo
     networks:

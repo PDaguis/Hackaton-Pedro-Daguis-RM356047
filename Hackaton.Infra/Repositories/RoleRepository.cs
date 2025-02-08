@@ -25,5 +25,18 @@ namespace Hackaton.Infra.Repositories
                 .Find(filter)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<bool> Exists()
+        {
+            var filter = Builders<Role>.Filter.Or(
+                Builders<Role>.Filter.Eq(d => d.Name, Core.Enumerators.ERole.Paciente),
+                Builders<Role>.Filter.Eq(d => d.Name, Core.Enumerators.ERole.Medico),
+                Builders<Role>.Filter.Eq(d => d.Name, Core.Enumerators.ERole.Administrador)
+            );
+
+            return await _context.GetCollection<Role>(typeof(Role).Name)
+                .Find(filter)
+                .AnyAsync();
+        }
     }
 }

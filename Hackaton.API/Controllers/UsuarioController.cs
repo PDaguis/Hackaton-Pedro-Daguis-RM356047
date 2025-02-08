@@ -20,13 +20,15 @@ namespace Hackaton.API.Controllers
         private readonly IUsuarioRoleRepository _usuarioRoleRepository;
         private readonly TokenProvider _tokenProvider;
         private readonly ILogger<MedicoController> _logger;
+        private readonly IRoleRepository _roleRepository;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository, ILogger<MedicoController> logger)
+        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository, ILogger<MedicoController> logger, IRoleRepository roleRepository)
         {
             _usuarioRepository = usuarioRepository;
             _tokenProvider = tokenProvider;
             _usuarioRoleRepository = usuarioRoleRepository;
             _logger = logger;
+            _roleRepository = roleRepository;
         }
 
         [HttpPost("login")]
@@ -128,6 +130,64 @@ namespace Hackaton.API.Controllers
                 await _usuarioRoleRepository.Cadastrar(usuarioRole);
 
                 return Created();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpPost("roles")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> CadastrarRoles()
+        {
+            try
+            {
+                _logger.LogInformation("Verificando se roles existem...");
+                if (await _roleRepository.Exists())
+                {
+                    _logger.LogInformation("Roles existem!");
+                    return Ok("Roles existem!");
+                }
+
+                var pacienteRole = new Role { RoleId = 1, Name = ERole.Paciente };
+                var medicoRole = new Role { RoleId = 2, Name = ERole.Medico };
+                var adminRole = new Role { RoleId = 3, Name = ERole.Administrador };
+
+                _logger.LogInformation("Cadastrando roles...");
+                await _roleRepository.Cadastrar(pacienteRole);
+                await _roleRepository.Cadastrar(medicoRole);
+                await _roleRepository.Cadastrar(adminRole);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+        [HttpGet("roles")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ObterRoles()
+        {
+            try
+            {
+                _logger.LogInformation("Obtendo roles...");
+                var roles = await _roleRepository.GetAll();
+
+                if (roles == null)
+                {
+                    _logger.LogInformation("Roles não encontradas");
+                    return NoContent();
+                }
+
+                return Ok(roles);
             }
             catch (Exception e)
             {
