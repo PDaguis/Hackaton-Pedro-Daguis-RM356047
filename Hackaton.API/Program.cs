@@ -1,3 +1,4 @@
+using FluentValidation;
 using Hackaton.API.Extensions;
 using Hackaton.API.Logging;
 using Hackaton.API.Security;
@@ -25,6 +26,8 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 // Add services to the container.
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -1,5 +1,7 @@
-﻿using Hackaton.API.DTO.Inputs.Usuario;
+﻿using FluentValidation;
+using Hackaton.API.DTO.Inputs.Usuario;
 using Hackaton.API.Security;
+using Hackaton.API.Validators.Usuario;
 using Hackaton.Core.Entities;
 using Hackaton.Core.Entities.Roles.Domain;
 using Hackaton.Core.Enumerators;
@@ -8,6 +10,7 @@ using Hackaton.Infra.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Extensions;
+using System.Linq;
 using System.Numerics;
 
 namespace Hackaton.API.Controllers
@@ -22,13 +25,18 @@ namespace Hackaton.API.Controllers
         private readonly ILogger<MedicoController> _logger;
         private readonly IRoleRepository _roleRepository;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository, ILogger<MedicoController> logger, IRoleRepository roleRepository)
+        private readonly IValidator<CadastrarInput> _validatorRegister;
+        private readonly IValidator<LoginInput> _validatorLogin;
+
+        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository, ILogger<MedicoController> logger, IRoleRepository roleRepository, IValidator<CadastrarInput> validatorRegister, IValidator<LoginInput> validatorLogin)
         {
             _usuarioRepository = usuarioRepository;
             _tokenProvider = tokenProvider;
             _usuarioRoleRepository = usuarioRoleRepository;
             _logger = logger;
             _roleRepository = roleRepository;
+            _validatorRegister = validatorRegister;
+            _validatorLogin = validatorLogin;
         }
 
         [HttpPost("login")]
@@ -40,6 +48,11 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                var validationResult = _validatorLogin.Validate(input);
+
+                if (!validationResult.IsValid)
+                    return BadRequest(validationResult.ToDictionary());
+
                 _logger.LogInformation($"Obtendo usuário por documento {input.Documento}...");
                 var usuario = await _usuarioRepository.ObterPorDocumento(input.Documento);
 
@@ -74,6 +87,11 @@ namespace Hackaton.API.Controllers
         {
             try
             {
+                var validationResult = _validatorRegister.Validate(input);
+
+                if (!validationResult.IsValid)
+                    return BadRequest(validationResult.ToDictionary());
+
                 _logger.LogInformation($"Verificando se usuário {input.Email} já existe...");
                 var usuarioExiste = await _usuarioRepository.ObterPorEmail(input.Email);
 

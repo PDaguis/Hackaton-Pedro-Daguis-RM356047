@@ -1,4 +1,6 @@
-﻿using Hackaton.API.DTO.Inputs.Agendamento;
+﻿using FluentValidation;
+using Hackaton.API.DTO.Inputs.Agendamento;
+using Hackaton.API.DTO.Inputs.Usuario;
 using Hackaton.Core.Entities;
 using Hackaton.Core.Interfaces;
 using Hackaton.Infra.Repositories;
@@ -16,10 +18,13 @@ namespace Hackaton.API.Controllers
         private readonly IAgendamentoRepository _agendamentoRepository;
         private readonly ILogger<AgendamentoController> _logger;
 
-        public AgendamentoController(IAgendamentoRepository agendamentoRepository, ILogger<AgendamentoController> logger)
+        private readonly IValidator<CadastrarAgendamentoInput> _validator;
+
+        public AgendamentoController(IAgendamentoRepository agendamentoRepository, ILogger<AgendamentoController> logger, IValidator<CadastrarAgendamentoInput> validator)
         {
             _agendamentoRepository = agendamentoRepository;
             _logger = logger;
+            _validator = validator;
         }
 
         /// <summary>
@@ -39,6 +44,10 @@ namespace Hackaton.API.Controllers
             {
                 foreach (var item in inputs)
                 {
+                    var validationResult = _validator.Validate(item);
+
+                    if (!validationResult.IsValid) { return BadRequest(validationResult.Errors); }
+
                     var agendamento = new Agendamento()
                     {
                         MedicoId = medicoId,
@@ -132,7 +141,7 @@ namespace Hackaton.API.Controllers
                 _logger.LogInformation($"Obtendo horários disponíveis para o médico {medicoId} entre {input.DataInicio} e {input.DataFinal}");
                 var horarios = await _agendamentoRepository.ObterHorariosDisponiveisPorMedico(medicoId, input.DataInicio, input.DataFinal);
 
-                if(horarios == null)
+                if (horarios == null)
                 {
                     _logger.LogInformation("Nenhum horário disponível encontrado");
                     return NoContent();
