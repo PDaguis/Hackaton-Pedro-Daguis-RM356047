@@ -1,8 +1,10 @@
 ﻿using Hackaton.API.DTO.Inputs.Usuario;
 using Hackaton.API.Security;
 using Hackaton.Core.Entities;
+using Hackaton.Core.Entities.Roles.Domain;
 using Hackaton.Core.Enumerators;
 using Hackaton.Core.Interfaces;
+using Hackaton.Infra.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Extensions;
@@ -15,12 +17,14 @@ namespace Hackaton.API.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IUsuarioRoleRepository _usuarioRoleRepository;
         private readonly TokenProvider _tokenProvider;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider)
+        public UsuarioController(IUsuarioRepository usuarioRepository, TokenProvider tokenProvider, IUsuarioRoleRepository usuarioRoleRepository)
         {
             _usuarioRepository = usuarioRepository;
             _tokenProvider = tokenProvider;
+            _usuarioRoleRepository = usuarioRoleRepository;
         }
 
         [HttpPost("login")]
@@ -40,7 +44,7 @@ namespace Hackaton.API.Controllers
                 if (!usuario.ValidarSenha(input.Senha))
                     return BadRequest("Senha inválida!");
 
-                var token = GenerateToken(usuario);
+                var token = await _tokenProvider.GenerateToken(usuario);
 
                 return Ok(token);
             }
@@ -58,7 +62,6 @@ namespace Hackaton.API.Controllers
         {
             try
             {
-                var todos = await _usuarioRepository.GetAll();
                 var usuarioExiste = await _usuarioRepository.ObterPorEmail(input.Email);
 
                 if (usuarioExiste != null)
@@ -78,7 +81,7 @@ namespace Hackaton.API.Controllers
                     {
                         Nome = input.Nome,
                         Email = input.Email,
-                        Role = ERole.Medico,
+                        Role = ERole.Medico ,
                         Crm = input.Crm,
                         Especialidade = input.Especialidade.Value
                     },
@@ -89,19 +92,21 @@ namespace Hackaton.API.Controllers
 
                 await _usuarioRepository.Cadastrar(usuario);
 
-                var token = GenerateToken(usuario);
+                var usuarioRole = new UsuarioRole
+                {
+                    RoleId = usuario.Role == ERole.Paciente ? Role.PacienteId : Role.MedicoId,
+                    UsuarioId = usuario.Id,
+                    Usuario = usuario
+                };
 
-                return Created(string.Empty, token);
+                await _usuarioRoleRepository.Cadastrar(usuarioRole);
+
+                return Created();
             }
             catch (Exception e)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
-        }
-
-        protected string GenerateToken(Usuario usuario)
-        {
-            return _tokenProvider.GenerateToken(usuario);
         }
     }
 }

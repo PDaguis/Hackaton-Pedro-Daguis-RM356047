@@ -1,8 +1,8 @@
 ﻿using Hackaton.Core.Entities;
 
-namespace Hackaton.API.Security.Roles.Domain
+namespace Hackaton.Core.Entities.Roles.Domain
 {
-    public class UserRole
+    public class UsuarioRole : EntityBase
     {
         public Guid UsuarioId { get; set; }
         public int RoleId { get; set; }

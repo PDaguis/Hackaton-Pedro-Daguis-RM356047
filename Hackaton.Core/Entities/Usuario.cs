@@ -1,4 +1,5 @@
-﻿using Hackaton.Core.Enumerators;
+﻿using Hackaton.Core.Entities.Roles.Domain;
+using Hackaton.Core.Enumerators;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;

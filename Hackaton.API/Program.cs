@@ -41,18 +41,17 @@ builder.Services.AddCors(opt =>
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 MongoDbClassMapping.RegisterClassMaps();
 
-builder.Services.AddSingleton<TokenProvider>();
-
 builder.Services.AddAuthorization();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
         o.RequireHttpsMetadata = false;
         o.TokenValidationParameters = new TokenValidationParameters
         {
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["DatabaseConfiguration:SecretKey"])),
             ValidIssuer = configuration["DatabaseConfiguration:Issuer"],
-            ValidAudience = configuration["DatabaseConfiguration:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["DatabaseConfiguration:SecretKey"]))
+            ValidAudience = configuration["DatabaseConfiguration:Audience"]
         };
     });
 
@@ -60,11 +59,15 @@ builder.Services.Configure<HackatonOptions>(opt => configuration.GetSection("Dat
 
 builder.Services.AddScoped<ApplicationDbContext>();
 
+builder.Services.AddScoped<TokenProvider>();
+
 builder.Services.AddScoped<IMedicoRepository, MedicoRepository>();
 builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
 builder.Services.AddScoped<IAgendamentoRepository, AgendamentoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IUsuarioRoleRepository, UsuarioRoleRepository>();
 
 var app = builder.Build();
 
@@ -77,8 +80,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors("All");
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

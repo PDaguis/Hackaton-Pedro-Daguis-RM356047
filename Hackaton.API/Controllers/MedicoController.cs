@@ -26,6 +26,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Atualizar([FromBody] AtualizarMedicoInput input)
         {
             try
@@ -57,6 +58,7 @@ namespace Hackaton.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "Medico")]
         public async Task<IActionResult> Excluir(Guid id)
         {
             try
